@@ -355,6 +355,12 @@
             <artifactId>wiremock</artifactId>
             <version>1.58</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- container dependencies -->
