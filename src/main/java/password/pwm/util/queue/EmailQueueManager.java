@@ -186,7 +186,7 @@ public class
                 final String mailhost = this.pwmApplication.getConfig().readSettingAsString(PwmSetting.EMAIL_SERVER_ADDRESS);
                 final int mailport = (int)this.pwmApplication.getConfig().readSettingAsLong(PwmSetting.EMAIL_SERVER_PORT);
 
-                final Transport tr = session.getTransport("smtp");
+                final Transport tr = session.getTransport();
                 tr.connect(mailhost, mailport, mailuser, mailpassword.getStringValue());
 
                 for (Message message : messages) {
