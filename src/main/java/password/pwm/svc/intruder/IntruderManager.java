@@ -170,7 +170,7 @@ public class IntruderManager implements Serializable, PwmService {
                 if (settings.getCheckCount() == 0 || settings.getCheckDuration().getTotalMilliseconds() == 0 || settings.getResetDuration().getTotalMilliseconds() == 0) {
                     LOGGER.info("intruder user checking will remain disabled due to configuration settings");
                 } else {
-                    recordManagers.put(RecordType.USERNAME, new RecordManagerImpl(RecordType.USERNAME, recordStore, settings));
+//                    recordManagers.put(RecordType.USERNAME, new RecordManagerImpl(RecordType.USERNAME, recordStore, settings));
                     recordManagers.put(RecordType.USER_ID, new RecordManagerImpl(RecordType.USER_ID, recordStore, settings));
                 }
             }
