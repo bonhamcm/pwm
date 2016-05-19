@@ -212,10 +212,10 @@ public class ChangePasswordServlet extends AbstractPwmServlet {
     {
         final UserInfoBean uiBean = pwmRequest.getPwmSession().getUserInfoBean();
 
-        if (!changePasswordBean.isAllChecksPassed()) {
-            this.advancedToNextStage(pwmRequest, changePasswordBean);
-            return;
-        }
+//        if (!changePasswordBean.isAllChecksPassed()) {
+//            this.advancedToNextStage(pwmRequest, changePasswordBean);
+//            return;
+//        }
 
         final PasswordData password1 = pwmRequest.readParameterAsPassword("password1");
         final PasswordData password2 = pwmRequest.readParameterAsPassword("password2");
