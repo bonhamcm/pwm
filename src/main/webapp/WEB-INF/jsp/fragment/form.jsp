@@ -87,7 +87,7 @@
         <%= currentValue %>
         </span>
     <% } else if (loopConfiguration.getType() == FormConfiguration.Type.select) { %>
-    <select id="<%=loopConfiguration.getName()%>" name="<%=loopConfiguration.getName()%>" class="inputfield selectfield" <pwm:autofocus/> >
+    <select id="<%=loopConfiguration.getName()%>" name="<%=loopConfiguration.getName()%>" <% if (loopConfiguration.isMultivalue()) { %> multiple="true" size="5" <% } %> class="inputfield selectfield" <pwm:autofocus/> >
         <% for (final String optionName : loopConfiguration.getSelectOptions().keySet()) {%>
         <option value="<%=optionName%>" <%if(optionName.equals(currentValue)){%>selected="selected"<%}%>>
             <%=loopConfiguration.getSelectOptions().get(optionName)%>
