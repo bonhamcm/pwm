@@ -27,6 +27,8 @@ import com.novell.ldapchai.ChaiUser;
 import com.novell.ldapchai.exception.ChaiOperationException;
 import com.novell.ldapchai.exception.ChaiUnavailableException;
 import com.novell.ldapchai.provider.ChaiProvider;
+
+import password.pwm.AppProperty;
 import password.pwm.Permission;
 import password.pwm.PwmApplication;
 import password.pwm.PwmConstants;
@@ -61,6 +63,7 @@ import password.pwm.util.operations.PasswordUtility;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -547,6 +550,8 @@ public class GuestRegistrationServlet extends AbstractPwmServlet {
     )
             throws IOException, ServletException, PwmUnrecoverableException
     {
+        final String expirationAttribute = pwmRequest.getConfig().readSettingAsString(PwmSetting.GUEST_EXPIRATION_ATTRIBUTE);
+        pwmRequest.setAttribute(PwmRequest.Attribute.GuestExpirationAttribute, expirationAttribute);
         calculateFutureDateFlags(pwmRequest, guestRegistrationBean);
         if (Page.search == guestRegistrationBean.getCurrentPage()) {
             pwmRequest.addFormInfoToRequestAttr(PwmSetting.GUEST_UPDATE_FORM, false, false);
@@ -635,8 +640,3 @@ public class GuestRegistrationServlet extends AbstractPwmServlet {
         pwmRequest.setAttribute(PwmRequest.Attribute.GuestMaximumExpirationDate, maxExpirationDate);
     }
 }
-
-
-
-
-

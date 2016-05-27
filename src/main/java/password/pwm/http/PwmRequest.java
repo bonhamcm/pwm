@@ -294,6 +294,7 @@ public class PwmRequest extends PwmHttpRequestWrapper implements Serializable {
         ForgottenPasswordPrompts,
         ForgottenPasswordInstructions,
 
+        GuestExpirationAttribute,
         GuestCurrentExpirationDate,
         GuestMaximumExpirationDate,
         GuestMaximumValidDays,

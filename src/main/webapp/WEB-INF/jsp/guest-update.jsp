@@ -41,6 +41,8 @@
         <form action="<pwm:current-url/>" method="post" name="updateGuest" enctype="application/x-www-form-urlencoded" class="pwm-form">
             <%@ include file="fragment/message.jsp" %>
             <jsp:include page="fragment/form.jsp"/>
+            <% final String expirationAttribute = (String)JspUtility.getAttribute(pageContext, PwmRequest.Attribute.GuestExpirationAttribute); %>
+            <% if (expirationAttribute != null && expirationAttribute.trim().length() > 0) { %>
             <p>
                 <label>
                     <pwm:display key="Display_ExpirationDate" value1="<%=String.valueOf(maxValidDays)%>"/>
@@ -48,6 +50,7 @@
                     <input name="expiredate-stub" id="expiredate-stub" type="date" required="true" value="<%=selectedDate%>"/>
                 </label>
             </p>
+            <% } %>
             <div class="buttonbar">
                 <input type="hidden" name="processAction" value="update"/>
                 <button type="submit" name="Update" class="btn" id="submitBtn">
