@@ -388,6 +388,9 @@ public class GuestRegistrationServlet extends AbstractPwmServlet {
             // set up the user creation attributes
             final Map<String,String> createAttributes = new HashMap<>();
             for (final FormConfiguration formItem : formValues.keySet()) {
+                if (formItem.isMultivalue()) {
+                    continue;
+                }
                 LOGGER.debug(pwmSession, "Attribute from form: "+ formItem.getName()+" = "+formValues.get(formItem));
                 final String n = formItem.getName();
                 final String v = formValues.get(formItem);
@@ -412,6 +415,21 @@ public class GuestRegistrationServlet extends AbstractPwmServlet {
             if (expirationDate != null) {
                 final String expirationAttr =config.readSettingAsString(PwmSetting.GUEST_EXPIRATION_ATTRIBUTE);
                 theUser.writeDateAttribute(expirationAttr, expirationDate);
+            }
+
+            // set up the multi-value attributes
+            final int maxLength = Integer.parseInt(pwmRequest.getConfig().readAppProperty(AppProperty.HTTP_PARAM_MAX_READ_LENGTH));
+            for (final FormConfiguration formItem : formValues.keySet()) {
+                if (formItem.isMultivalue()) {
+                    String n = formItem.getName();
+                    if (n != null && n.length() > 0) {
+                        List<String> values = pwmRequest.readParameterAsStrings(n, maxLength);
+                        LOGGER.debug(pwmSession, "Attribute from form: "+ n +" = " + values);
+                        if (values != null && values.size() > 0) {
+                            theUser.writeStringAttribute(n, new HashSet<String>(values));
+                        }
+                    }
+                }
             }
 
             final PwmPasswordPolicy passwordPolicy = PasswordUtility.readPasswordPolicyForUser(pwmApplication, pwmSession.getLabel(), userIdentity, theUser, locale);
