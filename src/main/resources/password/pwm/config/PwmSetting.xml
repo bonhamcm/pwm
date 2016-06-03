@@ -2466,6 +2466,13 @@
             <value><![CDATA[loginExpirationTime]]></value>
         </default>
     </setting>
+    <setting hidden="false" key="guest.groupMembershipAttribute" level="1">
+        <ldapPermission actor="proxy" access="write"/>
+        <regex>^[a-zA-Z][a-zA-Z0-9-]*$</regex>
+        <default>
+            <value><![CDATA[groupMembership]]></value>
+        </default>
+    </setting>
     <setting hidden="false" key="activateUser.enable" level="1" required="true">
         <default>
             <value>false</value>

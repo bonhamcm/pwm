@@ -750,6 +750,8 @@ public enum PwmSetting {
             "guest.maxValidDays", PwmSettingSyntax.NUMERIC, PwmSettingCategory.GUEST),
     GUEST_EXPIRATION_ATTRIBUTE(
             "guest.expirationAttribute", PwmSettingSyntax.STRING, PwmSettingCategory.GUEST),
+    GUEST_GROUP_MEMBERSHIP_ATTRIBUTE(
+            "guest.groupMembershipAttribute", PwmSettingSyntax.STRING, PwmSettingCategory.GUEST),
 
     // activation settings
     ACTIVATE_USER_ENABLE(

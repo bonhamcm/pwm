@@ -23,6 +23,7 @@
 package password.pwm.http.servlet;
 
 import com.novell.ldapchai.ChaiFactory;
+import com.novell.ldapchai.ChaiGroup;
 import com.novell.ldapchai.ChaiUser;
 import com.novell.ldapchai.exception.ChaiOperationException;
 import com.novell.ldapchai.exception.ChaiUnavailableException;
@@ -226,6 +227,8 @@ public class GuestRegistrationServlet extends AbstractPwmServlet {
                 theGuest.writeDateAttribute(expirationAttribute, expirationDate);
             }
 
+            writeMultipleValues(pwmRequest, pwmSession, formValues, pwmSession.getSessionManager().getChaiProvider(), theGuest);
+
             // send email.
             final UserStatusReader userStatusReader = new UserStatusReader(pwmApplication,pwmSession.getLabel());
             final UserInfoBean guestUserInfoBean = new UserInfoBean();
@@ -417,20 +420,7 @@ public class GuestRegistrationServlet extends AbstractPwmServlet {
                 theUser.writeDateAttribute(expirationAttr, expirationDate);
             }
 
-            // set up the multi-value attributes
-            final int maxLength = Integer.parseInt(pwmRequest.getConfig().readAppProperty(AppProperty.HTTP_PARAM_MAX_READ_LENGTH));
-            for (final FormConfiguration formItem : formValues.keySet()) {
-                if (formItem.isMultivalue()) {
-                    String n = formItem.getName();
-                    if (n != null && n.length() > 0) {
-                        List<String> values = pwmRequest.readParameterAsStrings(n, maxLength);
-                        LOGGER.debug(pwmSession, "Attribute from form: "+ n +" = " + values);
-                        if (values != null && values.size() > 0) {
-                            theUser.writeStringAttribute(n, new HashSet<String>(values));
-                        }
-                    }
-                }
-            }
+            writeMultipleValues(pwmRequest, pwmSession, formValues, provider, theUser);
 
             final PwmPasswordPolicy passwordPolicy = PasswordUtility.readPasswordPolicyForUser(pwmApplication, pwmSession.getLabel(), userIdentity, theUser, locale);
             final PasswordData newPassword = RandomPasswordGenerator.createRandomPassword(pwmSession.getLabel(), passwordPolicy, pwmApplication);
@@ -479,6 +469,43 @@ public class GuestRegistrationServlet extends AbstractPwmServlet {
             LOGGER.error(pwmSession, e.getErrorInformation().toDebugStr());
             pwmRequest.setResponseError(e.getErrorInformation());
             this.forwardToJSP(pwmRequest, guestRegistrationBean);
+        }
+    }
+
+    private void writeMultipleValues(final PwmRequest pwmRequest, final PwmSession pwmSession,
+            final Map<FormConfiguration, String> formValues, final ChaiProvider provider, final ChaiUser theUser)
+            throws PwmUnrecoverableException, ChaiUnavailableException, ChaiOperationException {
+        // set up the multi-value attributes
+        final int maxLength = Integer.parseInt(pwmRequest.getConfig().readAppProperty(AppProperty.HTTP_PARAM_MAX_READ_LENGTH));
+        final String groupMembershipAttribute = pwmRequest.getConfig().readSettingAsString(PwmSetting.GUEST_GROUP_MEMBERSHIP_ATTRIBUTE);
+        for (final FormConfiguration formItem : formValues.keySet()) {
+            if (formItem.isMultivalue()) {
+                String n = formItem.getName();
+                if (n != null && n.length() > 0) {
+                    List<String> values = pwmRequest.readParameterAsStrings(n, maxLength);
+                    LOGGER.debug(pwmSession, "Attribute from form: "+ n +" = " + values);
+                    if (values != null && values.size() > 0) {
+                        if (n.equalsIgnoreCase(groupMembershipAttribute)) {
+                            // if there are any existing groups, remove them first
+                            for (ChaiGroup group : theUser.getGroups()) {
+                                try {
+                                    theUser.removeGroupMembership(group);
+                                }
+                                catch (ChaiOperationException e) {
+                                    LOGGER.trace(e.getMessage(), e);
+                                }
+                            }
+                            for (String value : values) {
+                                ChaiGroup group = ChaiFactory.createChaiGroup(value, provider);
+                                theUser.addGroupMembership(group);
+                            }
+                        }
+                        else {
+                            theUser.writeStringAttribute(n, new HashSet<String>(values));
+                        }
+                    }
+                }
+            }
         }
     }
 
