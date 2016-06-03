@@ -20,10 +20,13 @@
 
 package password.pwm.http.servlet;
 
+import com.novell.ldapchai.ChaiConstant;
+import com.novell.ldapchai.ChaiGroup;
 import com.novell.ldapchai.ChaiUser;
 import com.novell.ldapchai.exception.ChaiOperationException;
 import com.novell.ldapchai.exception.ChaiUnavailableException;
 import com.novell.ldapchai.provider.ChaiProvider;
+import password.pwm.AppProperty;
 import password.pwm.Permission;
 import password.pwm.PwmApplication;
 import password.pwm.PwmConstants;
@@ -253,6 +256,8 @@ public class GuestRegistrationServlet extends AbstractPwmServlet
             {
                 theGuest.writeDateAttribute( expirationAttribute, expirationDate );
             }
+
+            writeMultipleValues( pwmRequest, formValues, pwmSession.getSessionManager().getChaiProvider(), theGuest );
 
             // send email.
             final UserInfo guestUserInfoBean = UserInfoFactory.newUserInfo(
@@ -485,6 +490,7 @@ public class GuestRegistrationServlet extends AbstractPwmServlet
             final PasswordData newPassword = RandomPasswordGenerator.createRandomPassword( pwmRequest.getLabel(), passwordPolicy, pwmApplication );
             theUser.setPassword( newPassword.getStringValue() );
 
+            writeMultipleValues( pwmRequest, formValues, provider, theUser );
 
             {
                 // execute configured actions
@@ -523,6 +529,53 @@ public class GuestRegistrationServlet extends AbstractPwmServlet
             LOGGER.error( pwmRequest, () -> e.getErrorInformation().toDebugStr() );
             setLastError( pwmRequest, e.getErrorInformation() );
             this.forwardToJSP( pwmRequest, guestRegistrationBean );
+        }
+    }
+
+    private void writeMultipleValues( final PwmRequest pwmRequest,
+                                     final Map<FormConfiguration, String> formValues, final ChaiProvider provider, final ChaiUser theUser )
+            throws PwmUnrecoverableException, ChaiUnavailableException, ChaiOperationException
+    {
+        // set up the multi-value attributes
+        final int maxLength = Integer.parseInt( pwmRequest.getConfig().readAppProperty( AppProperty.HTTP_PARAM_MAX_READ_LENGTH ) );
+        for ( final FormConfiguration formItem : formValues.keySet() )
+        {
+            if ( formItem.isMultivalue() )
+            {
+                final String n = formItem.getName();
+                if ( n != null && !n.isEmpty() )
+                {
+                    final List<String> values = pwmRequest.readParameterAsStrings( n, maxLength );
+                    LOGGER.debug( pwmRequest, () -> "Attribute from form: " + n + " = " + values );
+                    if ( values != null && !values.isEmpty() )
+                    {
+                        if ( ChaiConstant.ATTR_LDAP_MEMBER_OF.equalsIgnoreCase( n ) )
+                        {
+                            // if there are any existing groups, remove them first
+                            for ( final ChaiGroup group : theUser.getGroups() )
+                            {
+                                try
+                                {
+                                    theUser.removeGroupMembership( group );
+                                }
+                                catch ( final ChaiOperationException e )
+                                {
+                                    LOGGER.trace( e::getMessage, e );
+                                }
+                            }
+                            for ( final String value : values )
+                            {
+                                final ChaiGroup group = provider.getEntryFactory().newChaiGroup( value );
+                                theUser.addGroupMembership( group );
+                            }
+                        }
+                        else
+                        {
+                            theUser.writeStringAttribute( n, new HashSet<>( values ) );
+                        }
+                    }
+                }
+            }
         }
     }
 
