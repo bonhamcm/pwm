@@ -232,6 +232,7 @@ public class GuestRegistrationServlet extends AbstractPwmServlet {
             // send email.
             final UserStatusReader userStatusReader = new UserStatusReader(pwmApplication,pwmSession.getLabel());
             final UserInfoBean guestUserInfoBean = new UserInfoBean();
+            guestUserInfoBean.setUserIdentity(guestRegistrationBean.getUpdateUserIdentity());
             userStatusReader.populateUserInfoBean(
                     guestUserInfoBean,
                     pwmSession.getSessionStateBean().getLocale(),
@@ -271,7 +272,10 @@ public class GuestRegistrationServlet extends AbstractPwmServlet {
             return;
         }
 
-        pwmRequest.getPwmApplication().getEmailQueue().submitEmail(configuredEmailSetting, guestUserInfoBean, null);
+        final UserIdentity userIdentity = guestUserInfoBean.getUserIdentity();
+        final MacroMachine macroMachine = MacroMachine.forUser(pwmRequest, userIdentity);
+
+        pwmRequest.getPwmApplication().getEmailQueue().submitEmail(configuredEmailSetting, guestUserInfoBean, macroMachine);
     }
 
     protected void handleSearchRequest(
