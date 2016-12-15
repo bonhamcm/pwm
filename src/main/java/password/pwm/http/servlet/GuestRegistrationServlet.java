@@ -501,7 +501,12 @@ public class GuestRegistrationServlet extends AbstractPwmServlet {
                             }
                             for (String value : values) {
                                 ChaiGroup group = ChaiFactory.createChaiGroup(value, provider);
-                                theUser.addGroupMembership(group);
+                                try {
+                                    theUser.addGroupMembership(group);
+                                }
+                                catch (ChaiOperationException e) {
+                                    LOGGER.trace(e.getMessage(), e);
+                                }
                             }
                         }
                         else {

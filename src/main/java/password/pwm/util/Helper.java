@@ -142,7 +142,7 @@ public class
         final Map<String,String> tempMap = new HashMap<>();
 
         for (final FormConfiguration formItem : formValues.keySet()) {
-            if (!formItem.isReadonly()) {
+            if (!formItem.isReadonly() && !formItem.isMultivalue()) {
                 tempMap.put(formItem.getName(),formValues.get(formItem));
             }
         }
