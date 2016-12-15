@@ -466,6 +466,10 @@ public class GuestRegistrationServlet extends AbstractPwmServlet
             for ( final Map.Entry<FormConfiguration, String> entry : formValues.entrySet() )
             {
                 final FormConfiguration formItem = entry.getKey();
+                if ( formItem.isMultivalue() )
+                {
+                    continue;
+                }
                 final String value = entry.getValue();
                 LOGGER.debug( pwmRequest, () -> "Attribute from form: " + formItem.getName() + " = " + value );
                 final String n = formItem.getName();

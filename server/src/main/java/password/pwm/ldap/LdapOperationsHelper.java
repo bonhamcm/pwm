@@ -285,7 +285,7 @@ public class LdapOperationsHelper
         for ( final Map.Entry<FormConfiguration, String> entry : valueMap.entrySet() )
         {
             final FormConfiguration formItem = entry.getKey();
-            if ( !formItem.isReadonly() )
+            if ( !formItem.isReadonly() && !formItem.isMultivalue() )
             {
                 final String attrName = formItem.getName();
                 if ( formItem.getType() == FormConfiguration.Type.photo )
