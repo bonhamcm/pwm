@@ -71,6 +71,7 @@ import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -390,6 +391,21 @@ public class GuestRegistrationServlet extends AbstractPwmServlet
                     {
                         formProps.put( key, value );
                     }
+                }
+
+                try
+                {
+                    final ChaiUser theUser = chaiProvider.getEntryFactory().newChaiUser( theGuest.getUserDN() );
+                    final List<String> groups = new ArrayList<>();
+                    for ( final ChaiGroup group : theUser.getGroups() )
+                    {
+                        groups.add( group.getEntryDN() );
+                    }
+                    pwmRequest.getHttpServletRequest().setAttribute( ChaiConstant.ATTR_LDAP_MEMBER_OF, groups );
+                }
+                catch ( final ChaiOperationException e )
+                {
+                    LOGGER.warn( pwmRequest, () -> "error reading groups for user: " + theGuest.getUserDN(), e );
                 }
 
                 guBean.setUpdateUserIdentity( theGuest );
