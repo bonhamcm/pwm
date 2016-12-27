@@ -88,8 +88,9 @@
         </span>
     <% } else if (loopConfiguration.getType() == FormConfiguration.Type.select) { %>
     <select id="<%=loopConfiguration.getName()%>" name="<%=loopConfiguration.getName()%>" <% if (loopConfiguration.isMultivalue()) { %> multiple="true" size="5" <% } %> class="inputfield selectfield" <pwm:autofocus/> >
+        <% final java.util.List<java.lang.String> groups = request.getAttribute("memberOf") != null ? (java.util.List)request.getAttribute("memberOf") : new java.util.ArrayList<java.lang.String>(); %>
         <% for (final String optionName : loopConfiguration.getSelectOptions().keySet()) {%>
-        <option value="<%=optionName%>" <%if(optionName.equals(currentValue)){%>selected="selected"<%}%>>
+        <option value="<%=optionName%>" <%if(optionName.equals(currentValue)||("memberOf".equals(loopConfiguration.getName())&&groups.contains(optionName))){%>selected="selected"<%}%>>
             <%=loopConfiguration.getSelectOptions().get(optionName)%>
         </option>
         <% } %>

@@ -22,11 +22,13 @@
 
 package password.pwm.http.servlet;
 
+import com.novell.ldapchai.ChaiConstant;
 import com.novell.ldapchai.ChaiFactory;
 import com.novell.ldapchai.ChaiGroup;
 import com.novell.ldapchai.ChaiUser;
 import com.novell.ldapchai.exception.ChaiOperationException;
 import com.novell.ldapchai.exception.ChaiUnavailableException;
+import com.novell.ldapchai.impl.openldap.entry.OpenLDAPUser;
 import com.novell.ldapchai.provider.ChaiProvider;
 
 import password.pwm.AppProperty;
@@ -343,6 +345,13 @@ public class GuestRegistrationServlet extends AbstractPwmServlet {
                         formProps.put(key, value);
                     }
                 }
+
+                final ChaiUser theUser = ChaiFactory.createChaiUser(theGuest.getUserDN(), chaiProvider);
+                final List<String> groups = new ArrayList<>();
+                for (final ChaiGroup group : theUser.getGroups()) {
+                    groups.add(group.getEntryDN());
+                }
+                pwmRequest.getHttpServletRequest().setAttribute(ChaiConstant.ATTR_LDAP_MEMBER_OF, groups);
 
                 guBean.setUpdateUserIdentity(theGuest);
 
