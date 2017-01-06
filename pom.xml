@@ -403,7 +403,7 @@
 
         <dependency>
             <groupId>com.github.ldapchai</groupId>
-            <version>0.6.8-SNAPSHOT</version>
+            <version>0.6.9-SNAPSHOT</version>
             <artifactId>ldapchai</artifactId>
         </dependency>
         <dependency>
