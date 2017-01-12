@@ -450,6 +450,19 @@ public class GuestRegistrationServlet extends AbstractPwmServlet {
             );
             */
 
+            // add AD-specific attributes
+            if (ChaiProvider.DIRECTORY_VENDOR.MICROSOFT_ACTIVE_DIRECTORY == provider.getDirectoryVendor()) {
+                try {
+                    LOGGER.debug(pwmSession,
+                            "setting userAccountControl attribute to enable account " + theUser.getEntryDN());
+                    theUser.writeStringAttribute("userAccountControl", "512");
+                } catch (ChaiOperationException e) {
+                    final String errorMsg = "error enabling AD account when writing userAccountControl attribute: " + e.getMessage();
+                    final ErrorInformation errorInformation = new ErrorInformation(PwmError.ERROR_NEW_USER_FAILURE,
+                            errorMsg);
+                    throw new PwmOperationalException(errorInformation);
+                }
+            }
 
             {  // execute configured actions
                 LOGGER.debug(pwmSession, "executing configured actions to user " + theUser.getEntryDN());
