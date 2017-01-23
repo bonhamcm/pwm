@@ -435,9 +435,13 @@ public class GuestRegistrationServlet extends AbstractPwmServlet {
 
             writeMultipleValues(pwmRequest, pwmSession, formValues, provider, theUser);
 
-            final PwmPasswordPolicy passwordPolicy = PasswordUtility.readPasswordPolicyForUser(pwmApplication, pwmSession.getLabel(), userIdentity, theUser, locale);
-            final PasswordData newPassword = RandomPasswordGenerator.createRandomPassword(pwmSession.getLabel(), passwordPolicy, pwmApplication);
-            theUser.setPassword(newPassword.getStringValue());
+            // Don't generate password for AD since the RandomPasswordGenerator can't meet the policy
+            if (ChaiProvider.DIRECTORY_VENDOR.MICROSOFT_ACTIVE_DIRECTORY != provider.getDirectoryVendor()) {
+                final PwmPasswordPolicy passwordPolicy = PasswordUtility.readPasswordPolicyForUser(pwmApplication, pwmSession.getLabel(), userIdentity, theUser, locale);
+                final PasswordData newPassword = RandomPasswordGenerator.createRandomPassword(pwmSession.getLabel(), passwordPolicy, pwmApplication);
+                theUser.setPassword(newPassword.getStringValue());
+            }
+
             /*
             final UserInfoBean guestUserInfoBean = new UserInfoBean();
             final UserStatusReader userStatusReader = new UserStatusReader(pwmApplication);
@@ -454,8 +458,8 @@ public class GuestRegistrationServlet extends AbstractPwmServlet {
             if (ChaiProvider.DIRECTORY_VENDOR.MICROSOFT_ACTIVE_DIRECTORY == provider.getDirectoryVendor()) {
                 try {
                     LOGGER.debug(pwmSession,
-                            "setting userAccountControl attribute to enable account " + theUser.getEntryDN());
-                    theUser.writeStringAttribute("userAccountControl", "512");
+                            "setting userAccountControl attribute to enable account without password " + theUser.getEntryDN());
+                    theUser.writeStringAttribute("userAccountControl", "544");
                 } catch (ChaiOperationException e) {
                     final String errorMsg = "error enabling AD account when writing userAccountControl attribute: " + e.getMessage();
                     final ErrorInformation errorInformation = new ErrorInformation(PwmError.ERROR_NEW_USER_FAILURE,
