@@ -24,6 +24,9 @@ import {IWindowService} from 'angular';
 export default ['$window',
     function($window: IWindowService): (isoDate: string) => string {
         return (isoDate: string): string => {
+            if (isoDate === 'n/a') {
+                return 'None';
+            }
             let date = new Date(isoDate);
             if ($window['PWM_MAIN']) {
                 return $window['PWM_MAIN'].TimestampHandler.formatDate(date);
